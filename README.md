@@ -1,22 +1,23 @@
 # Dockerized rails application 
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Simple docker configuration to start a rails application with mysql database.
 
-Clone the repository 
+Clone the repository.
 ```
 git clone git@github.com:masudcsesust04/docker-rails-starter.git
 ```
 
-Change or modify rails version in Gemfile if needed. I have used latest rails 5.2.0
-Change or modify ruby version in Dockerfile if needed. I have used ruby 2.5.1
+You can change ruby(using latest 2.5.1) version in ```Dockerfile``` if needed.
 
-Now create a new rails application using docker-compose 
+Also, You can change/modify rails(used latest rails 5.2.0) version in ```Gemfile``` if needed.
+
+Now create rails application using docker-compose. It will pull and download all of the dependent images(ex- ruby and mysql) 
+specified in ```Dockerfile``` and ```docker-compose.yml``` file. Then it will create a rails application with mysql configuration skipping the bundle installation.
 ```
 docker-compose run app rails new . --force --database=mysql --skip-bundle
 ```
 
-Edit database.yml file
+Ok. Now edit your ```config/database.yml``` file as per bellow.
 ```
 default: &default
   adapter: mysql2
@@ -37,7 +38,7 @@ production:
   <<: *default
 ```
 
-Add following lines under app service in your docker-compose.yml file
+Now we need to specify the database environment configuration. So, Let's add following lines to ```docker-compose``` file under ```app``` service.
 ```
 environment:
   DB_USER: appuser
@@ -46,22 +47,41 @@ environment:
   DB_HOST: db
 ```
 
-Run ```docker-compose build``` this will build the docker image and install gems [because we have new gems due to rails new command].
+Alright, Now we are ready to build our application docker image. This will run all of the instructions specified in ```Dockerfile```. Run following command to build the application.   
+```
+docker-compose build
+``` 
 
-Run ```docker-compose up``` will run the services and application will be up and running.
+Let's run all the services specified in ```docker-compose.yml``` file. Now you will see rails application is up and running.
+```
+docker-compose up
+```
 
-Visit ```localhost:3001``` wow! showed rails app
+Ok, Now open your browser and visit ```localhost:3001``` wow! you will be seeing rails app default page. It seems dockerized rails application is running properly.
 
-Generate a scaffold ```docker-compose run --rm app rails g scaffold post title body:text```
+Now it's time to generate a scaffold using ```rails``` generator. We will be creating a ```post``` scaffold with ```title``` and ```body``` fields.
+```
+docker-compose run --rm app rails g scaffold post title body:text
+```
 
-Run migration ```docker-compose run --rm app rake db:migrate```
+Alright, Now we need to run the migration which is create due to the scaffolding.
+```
+docker-compose run --rm app rake db:migrate
+```
 
-Now visit ```localhost:3001/posts``` you can see the posts URL with CRUD feaures. FYI, We don't need to restart the service.
+Now visit ```localhost:3001/posts``` you will see the posts index page with add, edit, delete posts. 
 
-###Few more commands
+Note: We don't need to restart the service. I mean rebuild the image and re-run the ```docker-compose up```.
 
-Check the status of the services
-```docker-compose ps```
+### important commands
 
-```docker-compose run --rm app rake any_rake_command```
+To check the status of the services run 
+```
+docker-compose ps
+```
+
+You can run almost all the ```rake``` commands by specifying the task name as bellow  
+```
+docker-compose run --rm app rake any_rake_command
+```
 
